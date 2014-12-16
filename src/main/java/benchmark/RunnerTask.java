@@ -3,42 +3,61 @@ package benchmark;
 import com.hazelcast.core.HazelcastInstance;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class RunnerTask implements Runnable {
-
-    private ObjectPool<HazelcastInstance> pool;
-
-    private Map<String, Long> delayPut;
-    private Map<String, Long> delayGet;
-
-    public RunnerTask(ObjectPool<HazelcastInstance> pool, Map<String, Long> delayPut, Map<String, Long> delayGet) {
-        this.pool = pool;
-        this.delayPut = delayPut;
-        this.delayGet = delayGet;
-    }
+    BenchmarkTask benchmarkTask = Benchmark.getBenchmarkTask();
 
     public void run() {
-        // get an object from the pool
-        HazelcastInstance client = pool.borrowObject();
+        HazelcastInstance client = retrieveClient();
+        Map<String, Object> map = client.getMap(benchmarkTask.getMapName());
 
-        String id = UUID.randomUUID().toString();
-        Map<String, Object> map = client.getMap("calls");
-        long time = System.currentTimeMillis();
-        map.put(id, "anystring");
-        long difference = System.currentTimeMillis() - time;
+        switch (benchmarkTask.getMethodType()) {
+            case GET:
+                doGet(map);
+                break;
+            case PUT:
+                doPut(map);
+                break;
+        }
 
-        delayPut.put(id, difference);
+        releaseClient(client);
+    }
 
-        // Do a get
-        time = System.currentTimeMillis();
-        map = client.getMap("calls");
-        map.get(id);
-        difference = System.currentTimeMillis() - time;
+    private void doGet(Map<String, Object> map) {
+        int key = new Random(benchmarkTask.getMapSize()).nextInt();
 
-        delayGet.put(id, difference);
+        long start = System.currentTimeMillis();
+        map.get(key);
+        long end = System.currentTimeMillis();
 
-        // return ExportingProcess instance back to the pool
-        pool.returnObject(client);
+        long timeDifference = (end - start);
+        saveStats(String.valueOf(key), timeDifference);
+    }
+
+    private void doPut(Map<String, Object> map) {
+        String key = UUID.randomUUID().toString();
+        String value = BenchmarkUtils.createValueWithKBSize(benchmarkTask.getItemSizeInKB());
+
+        long start = System.currentTimeMillis();
+        map.put(key, value);
+        long end = System.currentTimeMillis();
+
+        long timeDifference = (end - start);
+        saveStats(key, timeDifference);
+    }
+
+    private HazelcastInstance retrieveClient() {
+        return Benchmark.getPool().borrowObject();
+    }
+
+    private void releaseClient(HazelcastInstance client) {
+        Benchmark.getPool().returnObject(client);
+    }
+
+    private void saveStats(String id, long timeDifference) {
+        BenchmarkStatistics.getExecutionTimeMap().put(id, timeDifference);
     }
 }
+
