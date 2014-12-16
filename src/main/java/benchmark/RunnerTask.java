@@ -1,12 +1,16 @@
 package benchmark;
 
 import com.hazelcast.core.HazelcastInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
 public class RunnerTask implements Runnable {
+    static final Logger LOG = LoggerFactory.getLogger(RunnerTask.class);
+
     BenchmarkTask benchmarkTask = Benchmark.getBenchmarkTask();
 
     public void run() {
@@ -15,10 +19,14 @@ public class RunnerTask implements Runnable {
 
         switch (benchmarkTask.getMethodType()) {
             case GET:
+                LOG.info("doGet - start");
                 doGet(map);
+                LOG.info("doGet - end");
                 break;
             case PUT:
+                LOG.info("doPut - start");
                 doPut(map);
+                LOG.info("doPut - end");
                 break;
         }
 

@@ -2,13 +2,13 @@ package benchmark;
 
 public class BenchmarkTask {
     private MethodType methodType = MethodType.PUT;
-
     private int clientPoolSize = 1;
     private int threadPoolSize = 1;
     private int mapSize = 100000;
     private int itemSizeInKB = 3;
     private String mapName = "test-map";
     private int operationCount = 1;
+    private int executionTimeInMinutes = 1;
 
     public MethodType getMethodType() {
         return methodType;
@@ -64,5 +64,13 @@ public class BenchmarkTask {
 
     public void setOperationCount(int operationCount) {
         this.operationCount = operationCount;
+    }
+
+    public int getExecutionTimeInMinutes() {
+        return executionTimeInMinutes;
+    }
+
+    public void setExecutionTimeInMinutes(int executionTimeInMinutes) {
+        this.executionTimeInMinutes = executionTimeInMinutes;
     }
 }

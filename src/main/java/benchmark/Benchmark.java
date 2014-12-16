@@ -34,20 +34,29 @@ public class Benchmark {
         }
 
         HazelcastClient.shutdownAll();
+        System.exit(0);
     }
 
     private void runTasks() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(benchmarkTask.getThreadPoolSize());
 
         long start = System.currentTimeMillis();
-        for (int i = 0; i < benchmarkTask.getOperationCount(); i++) {
+        long maxExecutionTime = start + (benchmarkTask.getExecutionTimeInMinutes() * 60 * 1000);
+        LOG.info("Start while loop: " + start);
+        LOG.info("maxExecutionTime: " + maxExecutionTime);
+        while (System.currentTimeMillis() < maxExecutionTime) {
+//        for (int i = 0; i < benchmarkTask.getOperationCount(); i++) {
             executor.execute(new RunnerTask());
         }
+        LOG.info("End while loop: " + System.currentTimeMillis());
 
         executor.shutdown();
-        executor.awaitTermination(40, TimeUnit.SECONDS);
+        executor.awaitTermination(60, TimeUnit.SECONDS);
+        LOG.info("Terminated");
+
         while (!executor.isTerminated()) {
-            Thread.sleep(100);
+            LOG.info("USing shutdown now");
+            executor.shutdownNow();
         }
         long end = System.currentTimeMillis();
 
