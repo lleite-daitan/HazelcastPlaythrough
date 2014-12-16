@@ -23,8 +23,8 @@ public class RunnerTask implements Runnable {
         HazelcastInstance client = pool.borrowObject();
 
         String id = UUID.randomUUID().toString();
-        long time = System.currentTimeMillis();
         Map<String, Object> map = client.getMap("calls");
+        long time = System.currentTimeMillis();
         map.put(id, "anystring");
         long difference = System.currentTimeMillis() - time;
 
