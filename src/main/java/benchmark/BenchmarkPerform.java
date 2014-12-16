@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class BenchmarkPerform {
 
     private ObjectPool<HazelcastInstance> pool;
-    private Map<String, Long> time = new HashMap();
+    private Map<String, Long> delayPut = new HashMap();
+    private Map<String, Long> delayGet = new HashMap();
 
     public static void main (String[] args) throws InterruptedException {
 
@@ -30,7 +31,7 @@ public class BenchmarkPerform {
         ExecutorService executor = Executors.newFixedThreadPool(300);
 
         for (int i=0; i<10000; i++) {
-            executor.execute(new RunnerTask(perf.pool, perf.time));
+            executor.execute(new RunnerTask(perf.pool, perf.delayPut, perf.delayGet));
         }
 
         executor.shutdown();
@@ -49,7 +50,8 @@ public class BenchmarkPerform {
         // Calculate average, minor and max
         //HazelcastClient.shutdownAll();
 
-        System.out.println("Average: " + perf.average(perf.time));
+        System.out.println("Average put: " + perf.average(perf.delayPut));
+        System.out.println("Average get: " + perf.average(perf.delayGet));
     }
 
     private Long average (Map<String, Long> delay) {

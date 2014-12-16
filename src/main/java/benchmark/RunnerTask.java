@@ -9,11 +9,13 @@ public class RunnerTask implements Runnable {
 
     private ObjectPool<HazelcastInstance> pool;
 
-    private Map<String, Long> delay;
+    private Map<String, Long> delayPut;
+    private Map<String, Long> delayGet;
 
-    public RunnerTask(ObjectPool<HazelcastInstance> pool, Map<String, Long> delay) {
+    public RunnerTask(ObjectPool<HazelcastInstance> pool, Map<String, Long> delayPut, Map<String, Long> delayGet) {
         this.pool = pool;
-        this.delay = delay;
+        this.delayPut = delayPut;
+        this.delayGet = delayGet;
     }
 
     public void run() {
@@ -26,7 +28,15 @@ public class RunnerTask implements Runnable {
         map.put(id, "anystring");
         long difference = System.currentTimeMillis() - time;
 
-        delay.put(id, difference);
+        delayPut.put(id, difference);
+
+        // Do a get
+        time = System.currentTimeMillis();
+        map = client.getMap("calls");
+        map.get(id);
+        difference = System.currentTimeMillis() - time;
+
+        delayGet.put(id, difference);
 
         // return ExportingProcess instance back to the pool
         pool.returnObject(client);
