@@ -1,6 +1,8 @@
 package benchmark;
 
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.HazelcastInstance;
 
 import java.util.Map;
@@ -19,9 +21,14 @@ public class BenchmarkUtils {
     }
 
     public static ObjectPool<HazelcastInstance> initiatePool(BenchmarkTask benchmarkTask) {
+        final ClientConfig clientConfig = new ClientConfig();
+        clientConfig.getNetworkConfig().addAddress("184.73.62.74","184.73.62.74:5702");
+        clientConfig.getNetworkConfig().setSmartRouting(false);
+        clientConfig.setGroupConfig(new GroupConfig("dev","dev-pass"));
+
         ObjectPool<HazelcastInstance> pool = new ObjectPool<HazelcastInstance>(benchmarkTask.getClientPoolSize()) {
             protected HazelcastInstance createObject() {
-                HazelcastInstance client = HazelcastClient.newHazelcastClient();
+                HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
                 return client;
             }
         };

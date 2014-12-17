@@ -47,16 +47,16 @@ public class MapPartitions {
         HazelcastInstance instance = initialInstanceList.get(0);
         Map map = instance.getMap(mapName);
 
-        initialInstanceList.stream().forEach(initialInstance -> gatherStats("Map initialized [initial node]", initialInstance));
+        //initialInstanceList.stream().forEach(initialInstance -> gatherStats("Map initialized [initial node]", initialInstance));
         populateMap(map, mapDemoConfiguration.getMapSize());
-        initialInstanceList.stream().forEach(initialInstance -> gatherStats("Map populated [initial node]", initialInstance));
+      //  initialInstanceList.stream().forEach(initialInstance -> gatherStats("Map populated [initial node]", initialInstance));
 
         timeReadValue("Initial Instances Reads", 2);
 
         List<HazelcastInstance> newInstanceList = hazelcastServerUtil.addNodeToCluster(mapDemoConfiguration.getAdditionalNodeCount());
-        initialInstanceList.stream().forEach(initialInstance -> gatherStats("Nodes added to cluster [initial node]", initialInstance));
+       // initialInstanceList.stream().forEach(initialInstance -> gatherStats("Nodes added to cluster [initial node]", initialInstance));
 
-        newInstanceList.stream().forEach(newInstance -> gatherStats("Nodes added to cluster [new node]", newInstance));
+      //  newInstanceList.stream().forEach(newInstance -> gatherStats("Nodes added to cluster [new node]", newInstance));
 
         timeReadValue("Added Instances Reads", 2);
 
